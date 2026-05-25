@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🍬 情侣心动约会清单 | 可爱交互版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* 让界面更“应用感”，不影响输入框 */
+        }
+
+        body {
+            background: linear-gradient(145deg, #fff5f0 0%, #ffe6df 100%);
+            font-family: 'Segoe UI', 'Quicksand', system-ui, -apple-system, 'Poppins', 'Comic Neue', 'Helvetica Neue', sans-serif;
+            padding: 2rem 1.5rem;
+            color: #4a2e2a;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* 可爱头部 */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 2.4rem;
+            background: #ffb882;
+            background: linear-gradient(135deg, #ff9a6e, #ff7660);
+            display: inline-block;
+            padding: 0.4rem 1.8rem;
+            border-radius: 100px;
+            color: white;
+            box-shadow: 0 12px 20px rgba(255, 100, 70, 0.25);
+            letter-spacing: -0.5px;
+            backdrop-filter: blur(2px);
+        }
+        .header h1:before {
+            content: "🐾";
+            margin-right: 8px;
+            font-size: 1.8rem;
+        }
+        .header p {
+            margin-top: 12px;
+            font-size: 1rem;
+            background: #fff0e8;
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 40px;
+            color: #cc7b5c;
+            font-weight: 500;
+            box-shadow: inset 0 0 0 1px #ffe0d0, 0 4px 8px rgba(0,0,0,0.02);
+        }
+
+        /* 两栏大布局 */
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            flex: 1;
+            min-width: 280px;
+            background: #fffef7;
+            border-radius: 48px;
+            box-shadow: 0 20px 35px rgba(233, 145, 105, 0.15);
+            backdrop-filter: blur(0px);
+            transition: transform 0.2s ease;
+            border: 1px solid #ffdfce;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background: #ffede3;
+            padding: 1.2rem 1.8rem;
+            font-size: 1.7rem;
+            font-weight: 700;
+            border-bottom: 3px dashed #ffc6ae;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .card-header span:first-child {
+            font-size: 2rem;
+        }
+        .card-header h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #cc6b49;
+        }
+        .list {
+            padding: 1.2rem 1.2rem 1.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        /* 每一项的样式 */
+        .todo-item {
+            background: #ffffffd9;
+            border-radius: 60px;
+            padding: 0.6rem 1rem 0.6rem 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px #ffe0d4;
+            border: 1px solid #ffede4;
+        }
+        .todo-item:hover {
+            background: #fffaf5;
+            border-color: #ffc9b5;
+        }
+        /* checkbox 可爱变大 */
+        .todo-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #ff8a6c;
+            cursor: pointer;
+            flex-shrink: 0;
+            transform: scale(1);
+            transition: 0.1s;
+        }
+        .todo-item input[type="checkbox"]:checked {
+            accent-color: #ff5a3a;
+        }
+        .item-text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #4b2f28;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .item-text .main-label {
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+        .badge {
+            background: #fff0e0;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 40px;
+            color: #c2633f;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .emoji-marker {
+            font-size: 1.2rem;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));
+        }
+        /* 特殊散步区域 (带地点输入) */
+        .walk-special {
+            background: #ffece0;
+            border: 2px solid #ffba93;
+            flex-wrap: wrap;
+            padding: 0.7rem 1rem;
+            border-radius: 50px;
+        }
+        .walk-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            flex: 2;
+            margin-left: 6px;
+        }
+        .walk-input {
+            flex: 2;
+            min-width: 140px;
+            border: none;
+            background: white;
+            border-radius: 60px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-family: inherit;
+            outline: none;
+            border: 1px solid #ffcaad;
+            transition: 0.2s;
+        }
+        .walk-input:focus {
+            border-color: #ff8c62;
+            box-shadow: 0 0 0 2px #ffd2bb;
+        }
+        .walk-btn {
+            background: #ffb48a;
+            border: none;
+            border-radius: 50px;
+            padding: 0.45rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: inherit;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .walk-btn:hover {
+            background: #ff9a68;
+            transform: scale(0.96);
+        }
+        .current-location {
+            font-size: 0.75rem;
+            background: #fff2ea;
+            border-radius: 40px;
+            padding: 0.2rem 0.8rem;
+            color: #b45a3a;
+            margin-top: 4px;
+            width: 100%;
+            display: inline-block;
+            text-align: left;
+        }
+        .walk-loc-display {
+            font-weight: 600;
+            color: #dc7e57;
+        }
+        /* 进度条小可爱 */
+        .progress-area {
+            background: #fff1e9;
+            border-radius: 60px;
+            padding: 0.8rem 1.5rem;
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid #ffe0cf;
+        }
+        .progress-text {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+        }
+        .progress-bar-bg {
+            flex: 1;
+            height: 12px;
+            background: #ffe0d2;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff8f6b, #ff5e3a);
+            border-radius: 20px;
+            transition: width 0.25s ease;
+        }
+        .reset-btn {
+            background: none;
+            border: 2px dashed #ffb48a;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            color: #cf7857;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.1s;
+            font-size: 0.8rem;
+        }
+        .reset-btn:hover {
+            background: #ffe1d0;
+            border-style: solid;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: #e2ad92;
+        }
+
+        @media (max-width: 750px) {
+            body {
+                padding: 1rem;
+            }
+            .card-header h2 {
+                font-size: 1.3rem;
+            }
+            .todo-item {
+                flex-wrap: wrap;
+            }
+            .walk-controls {
+                width: 100%;
+                margin-top: 6px;
+            }
+        }
+        .completed-text {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        /* 小点缀 */
+        .deco {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 3rem;
+            pointer-events: none;
+            opacity: 0.2;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="deco">🌸🐻‍❄️🍰</div>
+<div class="container">
+    <div class="header">
+        <h1>💖 情侣心动约会清单</h1>
+        <p>✨ 每完成一件就勾选 ✨ 散步专属地点记录 ✨</p>
+    </div>
+
+    <div class="categories">
+        <!-- 娱乐类卡片 -->
+        <div class="card">
+            <div class="card-header">
+                <span>🎢🎨</span>
+                <h2>娱乐·慢时光</h2>
+            </div>
+            <div class="list" id="entertainment-list">
+                <!-- 动态js生成但为了结构清晰，用js动态渲染保证checkbox id统一，同时方便存储 -->
+            </div>
+        </div>
+
+        <!-- 运动类卡片 (包含散步special) -->
+        <div class="card">
+            <div class="card-header">
+                <span>🏸⚡</span>
+                <h2>运动·活力派</h2>
+            </div>
+            <div class="list" id="sports-list">
+                <!-- 动态渲染运动类+散步特殊item -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 进度 & 重置可爱按钮 -->
+    <div class="progress-area">
+        <div class="progress-text">
+            <span>📋 约会进度</span>
+            <span id="counter">0 / 0</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <button class="reset-btn" id="resetAllBtn">🧹 重置所有勾选</button>
+    </div>
+    <footer>❤️ 勾选代表一起完成！散步地点随时记录，甜蜜每一刻</footer>
+</div>
+
+<script>
+    // ---------- 定义数据 ----------
+    // 娱乐类项目 (保持顺序，显示效果)
+    const entertainmentItems = [
+        { id: "ent_mw", label: "摩天轮", emoji: "🎡", badge: null },
+        { id: "ent_zoo", label: "动物园", emoji: "🐘", badge: null },
+        { id: "ent_hand", label: "做手工 (拼豆/陶艺/蓝印花布)", emoji: "🎨", badge: "南通特色" },
+        { id: "ent_theater", label: "南通大剧院看歌剧/表演", emoji: "🎭", badge: "高雅约会" },
+        { id: "ent_movie", label: "看电影 (新上映 / 私人影院)", emoji: "🎬", badge: "私密浪漫" },
+        { id: "ent_mj", label: "约人打麻将 / 打牌", emoji: "🀄", badge: "好友局" },
+        { id: "ent_kart", label: "开卡丁车", emoji: "🏎️", badge: "竞速心跳" },
+        { id: "ent_museum", label: "逛博物馆", emoji: "🏛️", badge: "文艺漫步" },
+        { id: "ent_superleague", label: "看南通主场苏超比赛", emoji: "⚽", badge: "热血现场" },
+        { id: "ent_spa", label: "泡温泉 / 捏脚", emoji: "♨️", badge: "放松解压" },
+        { id: "ent_musicfes", label: "看音乐节", emoji: "🎸", badge: "一起摇摆" },
+        { id: "ent_catcafe", label: "猫咖 / 狗咖", emoji: "🐱", badge: "毛茸茸治愈" },
+        { id: "ent_bar", label: "清吧听音乐 + drink a little", emoji: "🍸", badge: "微醺夜" },
+        { id: "ent_cook", label: "一起做一顿晚饭 / 烘焙", emoji: "🍳", badge: "爱的味道" }
+    ];
+
+    // 运动类项目 (不含散步基础项，因为散步单独特殊处理，但为了完整我们加入普通散步占位? 要把散步单独做成交互组件，但列表中保留散步项并入特殊处理)
+    // 根据需求: 运动类包含 打羽毛球，游泳，露营烧烤追剧，保龄球射箭等，还有散步（带地点）
+    // 为了特殊控件，我们定义运动类基本项目 (普通项目)
+    const sportsBaseItems = [
+        { id: "sport_badminton", label: "打羽毛球", emoji: "🏸", badge: "非常炸裂之强烈推荐!!" },
+        { id: "sport_swim", label: "游泳", emoji: "🏊", badge: "等我80kg之后" },
+        { id: "sport_camp", label: "露营烧烤 + 追剧", emoji: "🏕️", badge: "星空+美食" },
+        { id: "sport_bowling", label: "保龄球 / 射箭", emoji: "🎳🏹", badge: "帅气对决" }
+    ];
+
+    // 所有项目统一存储id和类型  散步单独处理  id: "sport_walk"
+    // 散步项目独立配置
+    const walkItem = {
+        id: "sport_walk",
+        label: "散步",
+        emoji: "🚶‍♀️🚶",
+        badge: "专属地点记录"
+    };
+
+    // 合并所有checkbox项ID清单 (用于计数)
+    let allCheckIds = [];
+    // 存储 checkbox 状态
+    let checkStates = {};
+
+    // 存储散步地点文字
+    let walkLocation = "未填写地点";
+
+    // 保存DOM元素引用
+    let entertainmentContainer, sportsContainer;
+    let counterSpan, progressFill;
+
+    // 初始化 & 渲染
+    function initData() {
+        // 收集所有常规项的id (娱乐+运动基础+散步)
+        allCheckIds = [
+            ...entertainmentItems.map(item => item.id),
+            ...sportsBaseItems.map(item => item.id),
+            walkItem.id
+        ];
+        // 从 localStorage 读取勾选状态
+        const storedChecks = localStorage.getItem("couple_checklist");
+        if (storedChecks) {
+            try {
+                const parsed = JSON.parse(storedChecks);
+                allCheckIds.forEach(id => {
+                    checkStates[id] = parsed[id] === true;
+                });
+            } catch(e) {}
+        }
+        // 确保未定义的默认为false
+        allCheckIds.forEach(id => {
+            if (checkStates[id] === undefined) checkStates[id] = false;
+        });
+
+        // 读取散步地点
+        const storedWalkLoc = localStorage.getItem("couple_walk_location");
+        if (storedWalkLoc) walkLocation = storedWalkLoc;
+        else walkLocation = "🌳 滨江公园 / 紫琅湖";
+    }
+
+    // 存储状态
+    function persistChecks() {
+        localStorage.setItem("couple_checklist", JSON.stringify(checkStates));
+    }
+    function persistWalkLocation() {
+        localStorage.setItem("couple_walk_location", walkLocation);
+    }
+
+    // 更新进度显示及样式删除线
+    function updateProgress() {
+        let total = allCheckIds.length;
+        let completed = allCheckIds.filter(id => checkStates[id] === true).length;
+        counterSpan.innerText = `${completed} / ${total}`;
+        let percent = total === 0 ? 0 : (completed / total) * 100;
+        progressFill.style.width = `${percent}%`;
+        // 动态给每个项目对应的文字添加删除线效果（通过重新渲染局部过于麻烦，我们使用DOM类标记同步）
+        // 但为了简单，我们在每一次勾选时重新对所有item-text做样式刷新效率可接受，不用整体重新渲染，可以使用class控制
+        document.querySelectorAll('.todo-item').forEach(item => {
+            const cb = item.querySelector('input[type="checkbox"]');
+            if (cb) {
+                const labelSpan = item.querySelector('.item-text .main-label');
+                if (labelSpan) {
+                    if (cb.checked) {
+                        labelSpan.style.textDecoration = "line-through";
+                        labelSpan.style.opacity = "0.7";
+                    } else {
+                        labelSpan.style.textDecoration = "none";
+                        labelSpan.style.opacity = "1";
+                    }
+                }
+            }
+        });
+        // 特殊散步单独文字更新
+        const walkLabel = document.querySelector('#walk-main-label');
+        if(walkLabel) {
+            if(checkStates[walkItem.id]) {
+                walkLabel.style.textDecoration = "line-through";
+                walkLabel.style.opacity = "0.7";
+            } else {
+                walkLabel.style.textDecoration = "none";
+                walkLabel.style.opacity = "1";
+            }
+        }
+    }
+
+    // 渲染娱乐区 & 运动区(带散步特殊组件)
+    function renderLists() {
+        if (!entertainmentContainer || !sportsContainer) return;
+        // 渲染娱乐区
+        entertainmentContainer.innerHTML = '';
+        entertainmentItems.forEach(item => {
+            const div = createTodoItem(item.id, item.label, item.emoji, item.badge);
+            entertainmentContainer.appendChild(div);
+        });
+
+        // 渲染运动区普通项目
+        sportsContainer.innerHTML = '';
+        sportsBaseItems.forEach(item => {
+            const div = createTodoItem(item.id, item.label, item.emoji, item.badge);
+            sportsContainer.appendChild(div);
+        });
+
+        // 添加特殊的散步条目 (独立设计带输入框)
+        const walkDiv = document.createElement('div');
+        walkDiv.className = 'todo-item walk-special';
+        const isChecked = checkStates[walkItem.id] || false;
+        // checkbox
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = walkItem.id;
+        cb.checked = isChecked;
+        cb.addEventListener('change', (e) => {
+            checkStates[walkItem.id] = e.target.checked;
+            persistChecks();
+            updateProgress();
+            // 同步散步单独文本删除线
+            const walkMainLabel = document.querySelector('#walk-main-label');
+            if(walkMainLabel) {
+                if(e.target.checked) {
+                    walkMainLabel.style.textDecoration = "line-through";
+                    walkMainLabel.style.opacity = "0.7";
+                } else {
+                    walkMainLabel.style.textDecoration = "none";
+                    walkMainLabel.style.opacity = "1";
+                }
+            }
+        });
+        
+        const textSpan = document.createElement('div');
+        textSpan.className = 'item-text';
+        textSpan.style.flexWrap = 'wrap';
+        textSpan.style.flex = '2';
+        const emojiSpan = document.createElement('span');
+        emojiSpan.className = 'emoji-marker';
+        emojiSpan.innerText = walkItem.emoji;
+        const mainLabel = document.createElement('span');
+        mainLabel.className = 'main-label';
+        mainLabel.id = "walk-main-label";
+        mainLabel.innerText = walkItem.label;
+        if(isChecked) {
+            mainLabel.style.textDecoration = "line-through";
+            mainLabel.style.opacity = "0.7";
+        } else {
+            mainLabel.style.textDecoration = "none";
+            mainLabel.style.opacity = "1";
+        }
+        const badgeSpan = document.createElement('span');
+        badgeSpan.className = 'badge';
+        badgeSpan.innerText = walkItem.badge;
+        textSpan.appendChild(emojiSpan);
+        textSpan.appendChild(mainLabel);
+        textSpan.appendChild(badgeSpan);
+        
+        // 地点控件区域
+        const walkControls = document.createElement('div');
+        walkControls.className = 'walk-controls';
+        const locationInput = document.createElement('input');
+        locationInput.type = 'text';
+        locationInput.placeholder = '填写散步地点，例如：濠河、狼山...';
+        locationInput.className = 'walk-input';
+        locationInput.value = (walkLocation !== "未填写地点" && walkLocation !== "🌳 滨江公园 / 紫琅湖") ? walkLocation : '';
+        if(walkLocation && walkLocation !== "未填写地点" && walkLocation !== "🌳 滨江公园 / 紫琅湖") locationInput.value = walkLocation;
+        
+        const saveBtn = document.createElement('button');
+        saveBtn.innerText = '📌 记录地点';
+        saveBtn.className = 'walk-btn';
+        const locationDisplaySpan = document.createElement('div');
+        locationDisplaySpan.className = 'current-location';
+        locationDisplaySpan.innerHTML = `✨ 当前散步计划：<span class="walk-loc-display" id="walkLocShow">${walkLocation}</span>`;
+        
+        saveBtn.addEventListener('click', () => {
+            let newLoc = locationInput.value.trim();
+            if(newLoc === "") {
+                newLoc = "💕 属于你们的秘密小路";
+            }
+            walkLocation = newLoc;
+            persistWalkLocation();
+            document.getElementById('walkLocShow').innerText = walkLocation;
+            // 小惊喜效果
+            saveBtn.innerText = '✅ 已记录';
+            setTimeout(() => { saveBtn.innerText = '📌 记录地点'; }, 1200);
+        });
+        
+        walkControls.appendChild(locationInput);
+        walkControls.appendChild(saveBtn);
+        walkControls.appendChild(locationDisplaySpan);
+        
+        walkDiv.appendChild(cb);
+        walkDiv.appendChild(textSpan);
+        walkDiv.appendChild(walkControls);
+        
+        sportsContainer.appendChild(walkDiv);
+        
+        // 重新绑定普通项目的check事件 (createTodoItem里已绑定，但重新渲染后需要确保所有checkbox绑定）
+        // 因为createTodoItem里绑定了change，但里面调用了updateProgress，没问题
+        // 但是要额外注意散步checkbox绑定已经额外写了，现在再重新绑定全部普通项的change事件同步更新删除线。
+        attachCommonCheckEvents();
+        updateProgress();
+    }
+    
+    // 创建普通项目DOM
+    function createTodoItem(id, label, emoji, badgeText) {
+        const div = document.createElement('div');
+        div.className = 'todo-item';
+        const isChecked = checkStates[id] || false;
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = id;
+        cb.checked = isChecked;
+        cb.addEventListener('change', (e) => {
+            checkStates[id] = e.target.checked;
+            persistChecks();
+            updateProgress();
+        });
+        
+        const textSpan = document.createElement('div');
+        textSpan.className = 'item-text';
+        const emojiSpan = document.createElement('span');
+        emojiSpan.className = 'emoji-marker';
+        emojiSpan.innerText = emoji;
+        const mainLabel = document.createElement('span');
+        mainLabel.className = 'main-label';
+        mainLabel.innerText = label;
+        if(isChecked) {
+            mainLabel.style.textDecoration = "line-through";
+            mainLabel.style.opacity = "0.7";
+        }
+        textSpan.appendChild(emojiSpan);
+        textSpan.appendChild(mainLabel);
+        if(badgeText) {
+            const badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.innerText = badgeText;
+            textSpan.appendChild(badge);
+        }
+        div.appendChild(cb);
+        div.appendChild(textSpan);
+        return div;
+    }
+    
+    // 附加事件同步文本装饰 (每次渲染后更新一次)
+    function attachCommonCheckEvents() {
+        // 所有普通checkbox 已经自带change调用updateProgress, updateProgress内部会刷新删除线样式，已覆盖
+        // 但为了刷新散步以外的文字样式，updateProgress里已经用querySelector同步所有.main-label样式
+        // 另外在checkbox变化时都会调用updateProgress。
+        // 然而散步部分上面已经单独处理，这里无需额外动作
+        // 保证初始样式
+    }
+    
+    // 重置所有勾选
+    function resetAllChecks() {
+        allCheckIds.forEach(id => {
+            checkStates[id] = false;
+        });
+        persistChecks();
+        // 重新渲染整个界面（保持散步地点不变）
+        renderLists();
+        // 但散步地点不清除，只重置勾选
+        updateProgress();
+        // 额外主动刷新散步checkbox的样式
+        const walkCb = document.getElementById(walkItem.id);
+        if(walkCb) walkCb.checked = false;
+        const walkLabelSpan = document.querySelector('#walk-main-label');
+        if(walkLabelSpan) {
+            walkLabelSpan.style.textDecoration = "none";
+            walkLabelSpan.style.opacity = "1";
+        }
+    }
+    
+    // 页面启动
+    window.addEventListener('DOMContentLoaded', () => {
+        entertainmentContainer = document.getElementById('entertainment-list');
+        sportsContainer = document.getElementById('sports-list');
+        counterSpan = document.getElementById('counter');
+        progressFill = document.getElementById('progressFill');
+        
+        initData();
+        renderLists();
+        
+        const resetBtn = document.getElementById('resetAllBtn');
+        resetBtn.addEventListener('click', () => {
+            resetAllChecks();
+        });
+        
+        // 额外监听防止散步显示地点同步
+        updateProgress();
+    });
+</script>
+</body>
+</html>
